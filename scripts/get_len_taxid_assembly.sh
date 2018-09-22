@@ -27,19 +27,19 @@ do
 		for i in $(seq 1 ${att});
 		do
 			xml_out="$(retrieve_assembly_uid_xml "${ACC}")"
-			assembly_uid="$(echo "$xml_out" | grep -m 1 -oP '(?<=<Id>)[^<]+')"
+			assembly_uid="$(echo "$xml_out" | awk -F '[<>]' '/<Id>/{print $3}'|head -1)"
 			# If assembly_uid was not found, try again
 			if [[ -z "${assembly_uid}" ]]; then continue; fi;
-		
+
 			xml_out="$(retrieve_assembly_accession_xml "${assembly_uid}")"
-			assembly_accession="$(echo "$xml_out" | grep -m 1 -oP '(?<=<AssemblyAccession>)[^<]+')"
+			assembly_accession="$(echo "$xml_out" |  awk -F '[<>]' '/<AssemblyAccession>/{print $3}'|head -1)"
 			# If taxid was found, break
 			if [[ -z "${assembly_accession}" ]]; then continue; fi;
 		done
-			
+
 		# If not found, add to the error list and continue
-		if [[ -z "${assembly_accession}" ]]; 
-		then 
+		if [[ -z "${assembly_accession}" ]];
+		then
 			error="${error} ${ACC}"
 			continue
 		fi

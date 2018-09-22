@@ -15,19 +15,19 @@ do
 	for i in $(seq 1 ${att});
 	do
 		xml_out="$(retrieve_nucleotide_fasta_xml "${ACC}")"
-		taxid="$(echo "$xml_out" | grep -m 1 -oP '(?<=Name="TaxId" Type="Integer">)[^<]+')"
+		taxid="$(echo "$xml_out" | awk -F '[<>]' '/Name="TaxId"/{print $3}'|head -1)"
 		# If taxid was found, break
 		if [[ ! -z "${taxid}" ]]; then break; fi;
 	done
 	# If taxid was not found, add to the error list and continue
-	if [[ -z "${taxid}" ]]; 
-	then 
+	if [[ -z "${taxid}" ]];
+	then
 		error="${error} ${ACC}"
 		continue
 	fi
-	# Extract sequence length 
-	len="$(echo "$xml_out" | grep -m 1 -oP '(?<=Name="Length" Type="Integer">)[^<]+')"
-	
+	# Extract sequence length
+	len="$(echo "$xml_out" | awk -F '[<>]' '/Name="Length"/{print $3}'|head -1)"
+
 	# Print output to STDOUT
 	echo ${ACC}$'\t'${len}$'\t'${taxid}
 done
